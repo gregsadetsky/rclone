@@ -834,7 +834,7 @@ func (o *Object) Size() int64 {
 	var resp *http.Response
 	opts := rest.Opts{
 		Method:  "HEAD",
-		RootURL: o.url + "=d",
+		RootURL: o.downloadURL(),
 	}
 	var err error
 	err = o.fs.pacer.Call(func() (bool, error) {
@@ -938,12 +938,21 @@ func (o *Object) Storable() bool {
 	return true
 }
 
+// downloadURL returns the URL for a full bytes download for the object
+func (o *Object) downloadURL() string {
+	url := o.url + "=d"
+	if strings.HasPrefix(o.mimeType, "video/") {
+		url += "v"
+	}
+	return url
+}
+
 // Open an object for read
 func (o *Object) Open(options ...fs.OpenOption) (in io.ReadCloser, err error) {
 	var resp *http.Response
 	opts := rest.Opts{
 		Method:  "GET",
-		RootURL: o.url + "=d",
+		RootURL: o.downloadURL(),
 		Options: options,
 	}
 	err = o.fs.pacer.Call(func() (bool, error) {
