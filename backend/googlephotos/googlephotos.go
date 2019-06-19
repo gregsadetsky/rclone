@@ -218,9 +218,13 @@ func NewFs(name, root string, m configmap.Mapper) (fs.Fs, error) {
 		return nil, errors.Wrap(err, "failed to configure Box")
 	}
 
+	root = path.Clean(root)
+	if root == "." {
+		root = ""
+	}
 	f := &Fs{
 		name:      name,
-		root:      strings.Trim(root, "/"),
+		root:      root,
 		opt:       *opt,
 		srv:       rest.NewClient(oAuthClient).SetRoot(rootURL),
 		pacer:     fs.NewPacer(pacer.NewDefault(pacer.MinSleep(minSleep), pacer.MaxSleep(maxSleep), pacer.DecayConstant(decayConstant))),
